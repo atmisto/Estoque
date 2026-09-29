@@ -1,1 +1,167 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Materiais Estocáveis - SAP</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            margin: 30px;
+            background-color: #f4f6f9;
+            color: #333;
+        }
+        .container {
+            max-width: 1100px;
+            margin: 0 auto;
+            background: #fff;
+            padding: 25px;
+            border-radius: 8px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        }
+        h2 { color: #1e3a8a; margin-top: 0; }
+        textarea {
+            width: 100%;
+            height: 120px;
+            padding: 10px;
+            border: 1px solid #cbd5e1;
+            border-radius: 6px;
+            box-sizing: border-box;
+            resize: vertical;
+            font-family: monospace;
+        }
+        button {
+            background-color: #2563eb;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            font-size: 14px;
+            font-weight: bold;
+            border-radius: 6px;
+            cursor: pointer;
+            margin-top: 10px;
+            transition: background 0.2s;
+        }
+        button:hover { background-color: #1d4ed8; }
+        .table-container {
+            margin-top: 25px;
+            overflow-x: auto;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 10px;
+        }
+        th, td {
+            padding: 12px 15px;
+            text-align: left;
+            border-bottom: 1px solid #e2e8f0;
+        }
+        th {
+            background-color: #0f172a;
+            color: white;
+            font-weight: 600;
+        }
+        tr:hover { background-color: #f8fafc; }
+        .badge {
+            background-color: #dcfce7;
+            color: #15803d;
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-size: 12px;
+            font-weight: bold;
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h2>Gerenciador de Materiais Estocáveis (SAP)</h2>
+    <p>Cole abaixo os dados copiados diretamente da transação do SAP (com colunas separadas por Tabulação/Excel):</p>
+    
+    <textarea id="sapInput" placeholder="Cole aqui (Ex do SAP: Código do Material [Tab] Descrição [Tab] Tipo... )"></textarea>
+    <br>
+    <button onclick="processarDadosSAP()">Processar Dados</button>
+
+    <div class="table-container">
+        <table id="tabelaMateriais" style="display: none;">
+            <thead>
+                <tr id="cabecalhoTabela">
+                    <!-- Gerado dinamicamente -->
+                </tr>
+            </thead>
+            <tbody id="corpoTabela">
+                <!-- Gerado dinamicamente -->
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<script>
+function processarDadosSAP() {
+    const input = document.getElementById('sapInput').value.trim();
+    const cabecalhoTr = document.getElementById('cabecalhoTabela');
+    const corpoTbody = document.getElementById('corpoTabela');
+    const tabela = document.getElementById('tabelaMateriais');
+
+    // Limpa tabelas anteriores
+    cabecalhoTr.innerHTML = '';
+    corpoTbody.innerHTML = '';
+
+    if (!input) {
+        alert('Por favor, cole dados válidos do SAP.');
+        return;
+    }
+
+    // Divide o texto colado em linhas
+    const linhas = input.split('\n');
+    
+    if (linhas.length > 0) {
+        // Primeira linha costuma ser o cabeçalho do SAP
+        const colunasCabecalho = linhas[0].split('\t');
+        colunasCabecalho.forEach(coluna => {
+            const th = document.createElement('th');
+            th.textContent = coluna.trim();
+            cabecalhoTr.appendChild(th);
+        });
+
+        // Adiciona uma coluna extra para o Status se não houver
+        const thStatus = document.createElement('th');
+        thStatus.textContent = 'Status SAP';
+        cabecalhoTr.appendChild(thStatus);
+
+        // Processa as linhas de dados (ignora a primeira linha que é o cabeçalho)
+        for (let i = 1; i < linhas.length; i++) {
+            if (!linhas[i].trim()) continue;
+            
+            const colunasDados = linhas[i].split('\t');
+            const tr = document.createElement('tr');
+
+            colunasDados.forEach(dado => {
+                const td = document.createElement('td');
+                // Remove zeros à esquerda comuns no código do material SAP
+                let texto = dado.trim();
+                if (/^\d+$/.test(texto)) {
+                    texto = parseInt(texto, 10); 
+                }
+                td.textContent = texto;
+                tr.appendChild(td);
+            });
+
+            // Adiciona a Tag "Estocável" no final
+            const tdStatus = document.createElement('td');
+            tdStatus.innerHTML = '<span class="badge">Estocável</span>';
+            tr.appendChild(tdStatus);
+
+            corpoTbody.appendChild(tr);
+        }
+
+        // Exibe a tabela na tela
+        tabela.style.display = 'table';
+    }
+}
+</script>
+
+</body>
+</html>
 
