@@ -12,7 +12,7 @@
             --card-bg: #ffffff;
             --text-color: #334155;
             --border-color: #cbd5e1;
-            --sap-blue: #bfe5f2; /* Cor azulada de fundo do cabeçalho do SAP */
+            --sap-blue: #bfe5f2;
         }
 
         body {
@@ -68,16 +68,18 @@
             color: #475569;
         }
 
-        input {
+        input, select {
             padding: 8px 12px;
             border: 1px solid var(--border-color);
             border-radius: 4px;
             font-size: 14px;
             background-color: #fff;
             transition: border-color 0.2s;
+            box-sizing: border-box;
+            height: 38px;
         }
 
-        input:focus {
+        input:focus, select:focus {
             outline: none;
             border-color: var(--primary-color);
         }
@@ -130,7 +132,7 @@
         table {
             width: 100%;
             border-collapse: collapse;
-            font-family: 'Courier New', Courier, monospace; /* Fonte mono para lembrar o SAP */
+            font-family: 'Courier New', Courier, monospace;
             font-size: 13px;
         }
 
@@ -179,9 +181,19 @@
                 <input type="text" id="codigoMaterial" placeholder="Ex: 13011189" required>
             </div>
 
+            <!-- Tipo de Material Selecionável SAP -->
             <div class="form-group">
-                <label for="tipoMaterial">Tipo de Material *</label>
-                <input type="text" id="tipoMaterial" placeholder="Ex: ROH, FERT" required>
+                <label for="tipoMaterial">Tipo de Material (MTART) *</label>
+                <select id="tipoMaterial" required>
+                    <option value="" disabled selected>Selecione o tipo...</option>
+                    <option value="ROH">ROH - Matéria-Prima</option>
+                    <option value="HALB">HALB - Semiacabado</option>
+                    <option value="FERT">FERT - Produto Acabado</option>
+                    <option value="HIBE">HIBE - Materiais Auxiliares</option>
+                    <option value="ERSA">ERSA - Peças de Reposição</option>
+                    <option value="HAWA">HAWA - Mercadoria de Revenda</option>
+                    <option value="VERP">VERP - Embalagens</option>
+                </select>
             </div>
 
             <div class="form-group double-width">
@@ -236,7 +248,7 @@
                 </tr>
             </thead>
             <tbody id="corpoRelatorio">
-                <!-- Linhas inseridas pelo JavaScript aparecerão aqui -->
+                <!-- Modelo inicial baseado na sua imagem do SAP -->
                 <tr>
                     <td>13011189</td>
                     <td>RELE MULTIF 127/220VCA</td>
@@ -253,11 +265,11 @@
 
 <script>
     function registrarMaterial(event) {
-        event.preventDefault(); // Impede o recarregamento automático
+        event.preventDefault();
 
-        // Captura os dados digitados
+        // Captura os dados digitados e selecionados
         const codigo = document.getElementById('codigoMaterial').value.trim();
-        const tipo = document.getElementById('tipoMaterial').value.trim();
+        const tipo = document.getElementById('tipoMaterial').value;
         const descricao = document.getElementById('descricaoMaterial').value.trim();
         const centro = document.getElementById('centro').value.trim();
         const deposito = document.getElementById('deposito').value.trim();
@@ -267,10 +279,7 @@
         // Monta a string corrida exigida para o campo "Dados de Prateleira"
         const dadosPrateleiraText = `Cód: ${codigo}, Tipo: ${tipo}, Desc: ${descricao}, Centro: ${centro}, Dep: ${deposito}, Qtd: ${quantidade}, UM: ${unidade}`;
 
-        // Obtém a tabela do relatório
         const tbody = document.getElementById('corpoRelatorio');
-
-        // Cria uma nova linha na tabela do relatório
         const novaLinha = document.createElement('tr');
 
         novaLinha.innerHTML = `
@@ -283,11 +292,9 @@
             <td class="prateleira-text">${dadosPrateleiraText}</td>
         `;
 
-        // Insere a nova linha no início do relatório
         tbody.insertBefore(novaLinha, tbody.firstChild);
 
-        // Alerta de sucesso e limpa o formulário para o próximo lançamento
-        alert(`Material ${codigo} registrado e adicionado ao relatório!`);
+        alert(`Material ${codigo} registrado com sucesso!`);
         limparFormulario();
     }
 
