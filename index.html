@@ -3,165 +3,256 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Materiais Estocáveis - SAP</title>
+    <title>Cadastro de Materiais em Estoque</title>
     <style>
+        :root {
+            --primary-color: #1e3a8a; /* Azul Padrão SAP/Corporativo */
+            --primary-hover: #1d4ed8;
+            --bg-color: #f8fafc;
+            --card-bg: #ffffff;
+            --text-color: #334155;
+            --border-color: #cbd5e1;
+        }
+
         body {
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            margin: 30px;
-            background-color: #f4f6f9;
-            color: #333;
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            margin: 0;
+            padding: 20px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
         }
+
         .container {
-            max-width: 1100px;
-            margin: 0 auto;
-            background: #fff;
-            padding: 25px;
+            background-color: var(--card-bg);
+            padding: 30px;
             border-radius: 8px;
-            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
-        }
-        h2 { color: #1e3a8a; margin-top: 0; }
-        textarea {
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.08);
             width: 100%;
-            height: 120px;
-            padding: 10px;
-            border: 1px solid #cbd5e1;
-            border-radius: 6px;
-            box-sizing: border-box;
-            resize: vertical;
-            font-family: monospace;
+            max-width: 750px;
         }
+
+        h2 {
+            margin-top: 0;
+            color: var(--primary-color);
+            border-bottom: 2px solid #e2e8f0;
+            padding-bottom: 10px;
+            font-size: 24px;
+        }
+
+        .form-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 20px;
+            margin-top: 20px;
+        }
+
+        .form-group {
+            display: flex;
+            flex-direction: column;
+        }
+
+        /* Faz a descrição ocupar a linha inteira */
+        .full-width {
+            grid-column: span 2;
+        }
+
+        label {
+            font-size: 14px;
+            font-weight: 600;
+            margin-bottom: 6px;
+            color: #475569;
+        }
+
+        input, select, textarea {
+            padding: 10px;
+            border: 1px solid var(--border-color);
+            border-radius: 6px;
+            font-size: 14px;
+            background-color: #fff;
+            transition: border-color 0.2s, box-shadow 0.2s;
+        }
+
+        input:focus, select:focus, textarea:focus {
+            outline: none;
+            border-color: var(--primary-color);
+            box-shadow: 0 0 0 3px rgba(30, 58, 138, 0.15);
+        }
+
+        textarea {
+            resize: vertical;
+            height: 80px;
+        }
+
+        .btn-container {
+            grid-column: span 2;
+            display: flex;
+            justify-content: flex-end;
+            gap: 12px;
+            margin-top: 15px;
+            border-top: 1px solid #e2e8f0;
+            padding-top: 20px;
+        }
+
         button {
-            background-color: #2563eb;
-            color: white;
-            border: none;
-            padding: 10px 20px;
+            padding: 11px 24px;
             font-size: 14px;
             font-weight: bold;
             border-radius: 6px;
             cursor: pointer;
-            margin-top: 10px;
-            transition: background 0.2s;
+            transition: all 0.2s;
         }
-        button:hover { background-color: #1d4ed8; }
-        .table-container {
-            margin-top: 25px;
-            overflow-x: auto;
-        }
-        table {
-            width: 100%;
-            border-collapse: collapse;
-            margin-top: 10px;
-        }
-        th, td {
-            padding: 12px 15px;
-            text-align: left;
-            border-bottom: 1px solid #e2e8f0;
-        }
-        th {
-            background-color: #0f172a;
+
+        .btn-submit {
+            background-color: var(--primary-color);
             color: white;
-            font-weight: 600;
+            border: none;
         }
-        tr:hover { background-color: #f8fafc; }
-        .badge {
-            background-color: #dcfce7;
-            color: #15803d;
-            padding: 4px 8px;
-            border-radius: 4px;
-            font-size: 12px;
-            font-weight: bold;
+
+        .btn-submit:hover {
+            background-color: var(--primary-hover);
+        }
+
+        .btn-clear {
+            background-color: #f1f5f9;
+            color: #64748b;
+            border: 1px solid #cbd5e1;
+        }
+
+        .btn-clear:hover {
+            background-color: #e2e8f0;
+            color: #334155;
+        }
+
+        /* Responsividade para telas menores (Celulares) */
+        @media (max-width: 600px) {
+            .form-grid {
+                grid-template-columns: 1fr;
+            }
+            .full-width, .btn-container {
+                grid-column: span 1;
+            }
+            .btn-container {
+                flex-direction: column-reverse;
+            }
+            button {
+                width: 100%;
+            }
         }
     </style>
 </head>
 <body>
 
 <div class="container">
-    <h2>Gerenciador de Materiais Estocáveis (SAP)</h2>
-    <p>Cole abaixo os dados copiados diretamente da transação do SAP (com colunas separadas por Tabulação/Excel):</p>
+    <h2>Cadastro de Material em Estoque</h2>
     
-    <textarea id="sapInput" placeholder="Cole aqui (Ex do SAP: Código do Material [Tab] Descrição [Tab] Tipo... )"></textarea>
-    <br>
-    <button onclick="processarDadosSAP()">Processar Dados</button>
+    <form id="formCadastroMaterial" onsubmit="salvarMaterial(event)">
+        <div class="form-grid">
+            
+            <!-- Código do Material (SAP / SKU) -->
+            <div class="form-group">
+                <label for="codigoMaterial">Código do Material (SAP/SKU) *</label>
+                <input type="text" id="codigoMaterial" placeholder="Ex: 1000452" required>
+            </div>
 
-    <div class="table-container">
-        <table id="tabelaMateriais" style="display: none;">
-            <thead>
-                <tr id="cabecalhoTabela">
-                    <!-- Gerado dinamicamente -->
-                </tr>
-            </thead>
-            <tbody id="corpoTabela">
-                <!-- Gerado dinamicamente -->
-            </tbody>
-        </table>
-    </div>
+            <!-- Tipo de Material -->
+            <div class="form-group">
+                <label for="tipoMaterial">Tipo de Material *</label>
+                <select id="tipoMaterial" required>
+                    <option value="" disabled selected>Selecione...</option>
+                    <option value="ROH">ROH - Matéria-Prima</option>
+                    <option value="HALB">HALB - Semiacabado</option>
+                    <option value="FERT">FERT - Produto Acabado</option>
+                    <option value="HIBE">HIBE - Materiais Auxiliares</option>
+                    <option value="ERSA">ERSA - Peças de Reposição</option>
+                </select>
+            </div>
+
+            <!-- Descrição Curta -->
+            <div class="form-group full-width">
+                <label for="descricaoMaterial">Descrição do Material *</label>
+                <input type="text" id="descricaoMaterial" placeholder="Ex: Chapa de Aço Inox 2mm x 1000mm" required>
+            </div>
+
+            <!-- Centro Logístico -->
+            <div class="form-group">
+                <label for="centro">Centro (Plant) *</label>
+                <input type="text" id="centro" placeholder="Ex: 1000" maxlength="4" required>
+            </div>
+
+            <!-- Depósito -->
+            <div class="form-group">
+                <label for="deposito">Depósito (Storage Location) *</label>
+                <input type="text" id="deposito" placeholder="Ex: 0001" maxlength="4" required>
+            </div>
+
+            <!-- Quantidade Inicial -->
+            <div class="form-group">
+                <label for="quantidade">Quantidade em Estoque *</label>
+                <input type="number" id="quantidade" min="0" step="any" placeholder="0.00" required>
+            </div>
+
+            <!-- Unidade de Medida -->
+            <div class="form-group">
+                <label for="unidadeMedida">Unidade de Medida (UM) *</label>
+                <select id="unidadeMedida" required>
+                    <option value="" disabled selected>Selecione...</option>
+                    <option value="UN">UN - Unidade</option>
+                    <option value="PC">PC - Peça</option>
+                    <option value="KG">KG - Quilograma</option>
+                    <option value="M">M - Metro</option>
+                    <option value="L">L - Litro</option>
+                    <option value="CX">CX - Caixa</option>
+                </select>
+            </div>
+
+            <!-- Observações adicionais -->
+            <div class="form-group full-width">
+                <label for="observacoes">Observações / Dados de Prateleira</label>
+                <textarea id="observacoes" placeholder="Ex: Prateleira A-3, Corredor Central..."></textarea>
+            </div>
+
+            <!-- Botões de Ação -->
+            <div class="btn-container">
+                <button type="button" class="btn-clear" onclick="limparFormulario()">Limpar</button>
+                <button type="submit" class="btn-submit">Cadastrar Material</button>
+            </div>
+
+        </div>
+    </form>
 </div>
 
 <script>
-function processarDadosSAP() {
-    const input = document.getElementById('sapInput').value.trim();
-    const cabecalhoTr = document.getElementById('cabecalhoTabela');
-    const corpoTbody = document.getElementById('corpoTabela');
-    const tabela = document.getElementById('tabelaMateriais');
+    function salvarMaterial(event) {
+        event.preventDefault(); // Impede a página de recarregar
 
-    // Limpa tabelas anteriores
-    cabecalhoTr.innerHTML = '';
-    corpoTbody.innerHTML = '';
+        // Captura os dados preenchidos no formulário
+        const material = {
+            codigo: document.getElementById('codigoMaterial').value,
+            tipo: document.getElementById('tipoMaterial').value,
+            descricao: document.getElementById('descricaoMaterial').value,
+            centro: document.getElementById('centro').value,
+            deposito: document.getElementById('deposito').value,
+            quantidade: document.getElementById('quantidade').value,
+            unidade: document.getElementById('unidadeMedida').value,
+            observacoes: document.getElementById('observacoes').value
+        };
 
-    if (!input) {
-        alert('Por favor, cole dados válidos do SAP.');
-        return;
+        // Aqui você integraria com seu banco de dados ou API. 
+        // Por enquanto, vamos apenas simular exibindo no console e um alerta.
+        console.log("Material Cadastrado com Sucesso:", material);
+        alert(`Sucesso!\nMaterial [${material.codigo}] - ${material.descricao} foi registrado no estoque.`);
+        
+        limparFormulario();
     }
 
-    // Divide o texto colado em linhas
-    const linhas = input.split('\n');
-    
-    if (linhas.length > 0) {
-        // Primeira linha costuma ser o cabeçalho do SAP
-        const colunasCabecalho = linhas[0].split('\t');
-        colunasCabecalho.forEach(coluna => {
-            const th = document.createElement('th');
-            th.textContent = coluna.trim();
-            cabecalhoTr.appendChild(th);
-        });
-
-        // Adiciona uma coluna extra para o Status se não houver
-        const thStatus = document.createElement('th');
-        thStatus.textContent = 'Status SAP';
-        cabecalhoTr.appendChild(thStatus);
-
-        // Processa as linhas de dados (ignora a primeira linha que é o cabeçalho)
-        for (let i = 1; i < linhas.length; i++) {
-            if (!linhas[i].trim()) continue;
-            
-            const colunasDados = linhas[i].split('\t');
-            const tr = document.createElement('tr');
-
-            colunasDados.forEach(dado => {
-                const td = document.createElement('td');
-                // Remove zeros à esquerda comuns no código do material SAP
-                let texto = dado.trim();
-                if (/^\d+$/.test(texto)) {
-                    texto = parseInt(texto, 10); 
-                }
-                td.textContent = texto;
-                tr.appendChild(td);
-            });
-
-            // Adiciona a Tag "Estocável" no final
-            const tdStatus = document.createElement('td');
-            tdStatus.innerHTML = '<span class="badge">Estocável</span>';
-            tr.appendChild(tdStatus);
-
-            corpoTbody.appendChild(tr);
-        }
-
-        // Exibe a tabela na tela
-        tabela.style.display = 'table';
+    function limparFormulario() {
+        document.getElementById('formCadastroMaterial').reset();
     }
-}
 </script>
 
 </body>
 </html>
-
